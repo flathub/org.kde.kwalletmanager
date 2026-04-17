@@ -36,10 +36,6 @@
                 {
                     "type": "patch",
                     "path": "0001-Complete-rename-to-kwalletmanager.patch"
-                },
-                {
-                    "type": "patch",
-                    "path": "0002-manager-Drop-old-icons.patch"
                 }
             ]
         }
