@@ -1,43 +1,56 @@
-From 2ecd9b9fc0279c7d364f03971766034ce0d174ea Mon Sep 17 00:00:00 2001
+From 1fd2b4507de9c26d7e9d13020ae346be79ab0959 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Timoth=C3=A9e=20Ravier?= <tim@siosm.fr>
 Date: Sat, 6 Dec 2025 13:04:30 +0100
-Subject: [PATCH 1/2] Complete rename to kwalletmanager
+Subject: [PATCH] Complete rename to kwalletmanager
 
 See: https://invent.kde.org/utilities/kwalletmanager/-/merge_requests/51
 
 BUG: https://bugs.kde.org/show_bug.cgi?id=489916
 ---
- CMakeLists.txt                                |  8 +--
- Mainpage.dox                                  |  6 +-
- doc/index.docbook                             | 65 ++++++++++---------
- ...desktop => kwalletmanager-kwalletd.desktop |  4 +-
- ....xml => org.kde.kwalletmanager.appdata.xml | 12 ++--
+ .flatpak-manifest.json                        |  2 +-
+ CMakeLists.txt                                |  8 +++----
+ Mainpage.dox                                  |  6 ++---
+ ...desktop => kwalletmanager-kwalletd.desktop |  4 ++--
+ ....xml => org.kde.kwalletmanager.appdata.xml | 12 ++++++----
  org.kde.kwalletmanager.desktop                |  2 +-
- src/konfigurator/CMakeLists.txt               | 22 +++----
- src/konfigurator/konfigurator.cpp             | 12 ++--
+ src/konfigurator/CMakeLists.txt               | 22 ++++++++---------
+ src/konfigurator/konfigurator.cpp             | 12 +++++-----
  src/konfigurator/kwallet.actions              |  2 +-
  src/konfigurator/kwalletconfig.json           |  2 +-
  src/konfigurator/savehelper.cpp               |  2 +-
- src/manager/CMakeLists.txt                    | 24 +++----
+ src/manager/CMakeLists.txt                    | 24 +++++++------------
  src/manager/kwalletmanager.cpp                |  2 +-
  src/manager/main.cpp                          |  2 +-
- 14 files changed, 82 insertions(+), 83 deletions(-)
+ 14 files changed, 50 insertions(+), 52 deletions(-)
  rename kwalletmanager5-kwalletd.desktop => kwalletmanager-kwalletd.desktop (98%)
  rename org.kde.kwalletmanager5.appdata.xml => org.kde.kwalletmanager.appdata.xml (98%)
 
+diff --git a/.flatpak-manifest.json b/.flatpak-manifest.json
+index 8fa0d14d..101bb639 100644
+--- a/.flatpak-manifest.json
++++ b/.flatpak-manifest.json
+@@ -3,7 +3,7 @@
+     "runtime": "org.kde.Platform",
+     "runtime-version": "6.10",
+     "sdk": "org.kde.Sdk",
+-    "command": "kwalletmanager5",
++    "command": "kwalletmanager",
+     "finish-args": [
+         "--device=dri",
+         "--share=ipc",
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index de653062..749d0e83 100644
+index e8f1a4b9..67c8cc99 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,7 +5,7 @@ set (RELEASE_SERVICE_VERSION_MAJOR "26")
- set (RELEASE_SERVICE_VERSION_MINOR "03")
+ set (RELEASE_SERVICE_VERSION_MINOR "07")
  set (RELEASE_SERVICE_VERSION_MICRO "70")
  set (RELEASE_SERVICE_VERSION "${RELEASE_SERVICE_VERSION_MAJOR}.${RELEASE_SERVICE_VERSION_MINOR}.${RELEASE_SERVICE_VERSION_MICRO}")
 -project(kwalletmanager5 VERSION ${RELEASE_SERVICE_VERSION})
 +project(kwalletmanager VERSION ${RELEASE_SERVICE_VERSION})
  
  set(QT_MIN_VERSION "6.7.0")
- set(KF_MIN_VERSION "6.3.0")
+ set(KF_MIN_VERSION "6.13.0")
 @@ -76,11 +76,11 @@ add_subdirectory( src )
  
  
@@ -69,236 +82,14 @@ index a07e260b..134275db 100644
  // DOXYGEN_REFERENCES = kdecore
 -// DOXYGEN_SET_PROJECT_NAME = kwallet
 +// DOXYGEN_SET_PROJECT_NAME = kwalletmanager
-diff --git a/doc/index.docbook b/doc/index.docbook
-index 5369d086..8f77355e 100644
---- a/doc/index.docbook
-+++ b/doc/index.docbook
-@@ -4,9 +4,9 @@
-   <!ENTITY % English "INCLUDE">
- ]>
- 
--<book id="kwallet5" lang="&language;">
-+<book id="kwalletmanager" lang="&language;">
- <bookinfo>
--<title>The &kwallet5; Handbook</title>
-+<title>The &kwalletmanager; Handbook</title>
- 
- <authorgroup>
- <author>
-@@ -38,6 +38,7 @@ passwords.</para>
- <keywordset>
- <keyword>KDE</keyword>
- <keyword>Kwallet</keyword>
-+<keyword>Kwalletmanager</keyword>
- <keyword>passwords</keyword>
- <keyword>forms</keyword>
- </keywordset>
-@@ -52,7 +53,7 @@ which is sensitive.  In particular, you will typically have many passwords
- to manage.  Remembering them is difficult and writing them down on paper or in
- a text file is insecure.</para>
- 
--<para>&kwallet5; provides a secure way to store passwords and other secret information,
-+<para>&kwalletmanager; provides a secure way to store passwords and other secret information,
- allowing the user to remember only a single password instead of numerous different passwords and credentials.
- </para>
- 
-@@ -60,7 +61,7 @@ allowing the user to remember only a single password instead of numerous differe
- 
- <title>Create a Wallet</title>
- 
--<para>Wallet is a password storage. It is usually sufficient to have just one wallet secured by one master password but you can organize your large collection of passwords by wallets using &kwalletmanager5;.</para>
-+<para>Wallet is a password storage. It is usually sufficient to have just one wallet secured by one master password but you can organize your large collection of passwords by wallets using &kwalletmanager;.</para>
- 
- <para>By default a wallet named <guilabel>kdewallet</guilabel> will be used to store your passwords.
- This wallet is secured by your login password and will automatically be opened at login,
-@@ -73,16 +74,16 @@ if kwallet_pam is installed and properly configured. On certain distros (&eg; Ar
- 
- <itemizedlist>
- <listitem><para>Use the menu item <menuchoice><guimenu>File</guimenu><guimenuitem>New
--Wallet</guimenuitem></menuchoice> in the &kwalletmanager5;</para></listitem>
-+Wallet</guimenuitem></menuchoice> in the &kwalletmanager;</para></listitem>
- 
- <listitem><para>Use the <guibutton>New</guibutton> button in the &systemsettings; module
- <guilabel>KDE Wallet</guilabel></para></listitem>
- </itemizedlist>
- 
--<para>If you have not created a wallet yet, see section <link linkend="kwallet-using">Using &kwallet5;</link>.
-+<para>If you have not created a wallet yet, see section <link linkend="kwallet-using">Using &kwalletmanager;</link>.
- </para>
- 
--<para>&kwallet5; offers two different ways to store your data:</para>
-+<para>&kwalletmanager; offers two different ways to store your data:</para>
- 
- <screenshot>
- <screeninfo>Select encryption</screeninfo>
-@@ -97,7 +98,7 @@ Wallet</guimenuitem></menuchoice> in the &kwalletmanager5;</para></listitem>
- <varlistentry>
- <term>Blowfish encryption</term>
- <listitem>
--<para>&kwallet5; saves this sensitive data for you in a strongly encrypted
-+<para>&kwalletmanager; saves this sensitive data for you in a strongly encrypted
- file, accessible by all applications, and protected with a master
- password that you define.</para>
- 
-@@ -145,13 +146,13 @@ found on the system. Please use applications like &kgpg; or &kleopatra; to creat
- </mediaobject>
- </screenshot>
- 
--<para>&kwallet5; will now use GPG when storing wallets and when opening them.
-+<para>&kwalletmanager; will now use GPG when storing wallets and when opening them.
- The passphrase dialog only shows once. Even if the wallet is closed after initial open,
- subsequent opening will occur silently during the same session.
- </para>
- 
- <para>
--The same session can handle simultaneously both file formats. &kwallet5; will transparently detect
-+The same session can handle simultaneously both file formats. &kwalletmanager; will transparently detect
- the file format and load the correct backend to handle it.</para>
- 
- <para>
-@@ -159,7 +160,7 @@ To use your sensitive data from your classic wallet with the new backend follow
- 
- <itemizedlist>
- <listitem><para>Create a new GPG based wallet</para></listitem>
--<listitem><para>Launch &kwalletmanager5; using &krunner; (<keycombo>&Alt; <keycap>F2</keycap></keycombo>)
-+<listitem><para>Launch &kwalletmanager; using &krunner; (<keycombo>&Alt; <keycap>F2</keycap></keycombo>)
- or other application launcher (menu) and select your old wallet.
- Then choose <menuchoice><guimenu>File</guimenu>
- <guimenuitem>Export as encrypted</guimenuitem></menuchoice> to create an archive file with your sensitive data.
-@@ -185,10 +186,10 @@ in <userinput>qtpaths --paths GenericDataLocation</userinput>.
- </variablelist>
- 
- <tip>
--<para>&kwallet5; supports multiple wallets, so
-+<para>&kwalletmanager; supports multiple wallets, so
- for the most secure operation, you should use one wallet for local
- passwords, and another for network passwords and form data.  You can
--configure this behavior in the &kwallet5; &systemsettings; module, however
-+configure this behavior in the &kwalletmanager; &systemsettings; module, however
- the default setting is to store everything in one wallet named <guilabel>kdewallet</guilabel>.</para>
- </tip>
- 
-@@ -198,7 +199,7 @@ be read by any user process, so this may be a security issue.</para>
- </sect1>
- 
- <sect1 id="kwallet-using">
--<title>Using &kwallet5;</title>
-+<title>Using &kwalletmanager;</title>
- 
- <para>If you visit &eg; the &kde; bugtracker and enter the login data for
- the first time, a dialog pops up offering to store the password in an
-@@ -247,26 +248,26 @@ the wallet, it can automatically restore any login information stored in the wal
- 
- </chapter>
- 
--<chapter id="kwalletmanager5">
--<title>&kwalletmanager5;</title>
-+<chapter id="kwalletmanager">
-+<title>&kwalletmanager;</title>
- 
--<para>&kwalletmanager5; serves a number of functions.  Firstly it allows you to see if
-+<para>&kwalletmanager; serves a number of functions.  Firstly it allows you to see if
- any wallets are open, which wallets those are, and which applications are
- using each wallet.  You can disconnect an application's access to a wallet
--from within the &kwalletmanager5;.</para>
-+from within the &kwalletmanager;.</para>
- 
- <para>You may also manage the wallets installed on the system, creating and
- deleting wallets and manipulating their contents (changing keys, ...).</para>
- 
--<para>The &kwalletmanager5; application is launched with <menuchoice>
-+<para>The &kwalletmanager; application is launched with <menuchoice>
- <guimenu>Applications</guimenu><guisubmenu>System</guisubmenu>
- <guimenuitem>Wallet Management Tool</guimenuitem></menuchoice> from the
- application launcher.
- Alternatively start &krunner; with shortcut <keycombo
- action="simul">&Alt;<keycap>F2</keycap></keycombo> and enter
--<command>kwalletmanager5</command>.</para>
-+<command>kwalletmanager</command>.</para>
- 
--<para>Click once on the system tray wallet icon to display the &kwalletmanager5;
-+<para>Click once on the system tray wallet icon to display the &kwalletmanager;
- window.</para>
- <para>
- <screenshot>
-@@ -293,7 +294,7 @@ see also https://bugs.kde.org/show_bug.cgi?id=290309
- 
- <para>If you have more than one wallet all available wallets are shown on the left.</para>
- 
--<para>Clicking on a wallet in the &kwalletmanager5; window will display
-+<para>Clicking on a wallet in the &kwalletmanager; window will display
- that wallet's status and the contents of an opened wallet. A wallet may contain any number
- of folders, which allow storing of password information. By default a wallet
- will contain folders named Form Data and Passwords.
-@@ -403,18 +404,18 @@ Use the button right of each entry in the list to revoke the access.
- </chapter>
- 
- <chapter id="kwallet-kcontrol-module">
--<title>Configuring &kwallet5;</title>
-+<title>Configuring &kwalletmanager;</title>
- 
- <sect1 id="wallet-preferences">
- <title>Wallet Preferences</title>
- 
--<para>&kwallet5; contains a small configuration panel with several options
--that allow you to tune &kwallet5; to your personal preferences.  The
--default settings for &kwallet5; are sufficient for most users.</para>
-+<para>&kwalletmanager; contains a small configuration panel with several options
-+that allow you to tune &kwalletmanager; to your personal preferences.  The
-+default settings for &kwalletmanager; are sufficient for most users.</para>
- 
- <para>Check the box to enable or disable the &kde; wallet subsystem
--entirely.  If this box is unchecked, then &kwallet5; is entirely disabled and
--none of the other options here have any effect, nor will &kwallet5; record
-+entirely.  If this box is unchecked, then &kwalletmanager; is entirely disabled and
-+none of the other options here have any effect, nor will &kwalletmanager; record
- any information, or offer to fill in forms for you.</para>
- 
- <variablelist>
-@@ -489,7 +490,7 @@ system tray.</para>
- 
- <para>Finally, there is a button labeled <guibutton>Launch Wallet
- Manager</guibutton>, which does precisely that.</para>
--<para>This button is only visible if &kwalletmanager5; is not running</para>
-+<para>This button is only visible if &kwalletmanager; is not running</para>
- </sect1>
- 
- <sect1 id="wallet-access-control">
-@@ -531,7 +532,7 @@ context menu that appears, or by simply selecting it and pressing the
- <para>An application that has been allowed access to a wallet is granted access to
- all passwords stored inside.</para>
- 
--<para>If you erroneously configured an application not to use the &kwallet5;
-+<para>If you erroneously configured an application not to use the &kwalletmanager;
- delete the policy for this application here.</para>
- <!-- FIXME difference to Revoke Authorization in kwallermanager?-->
- <para>
-@@ -557,7 +558,7 @@ On the next start of this application you can define a new policy for access to
- <chapter id="advanced-features">
- <title>Advanced Features</title>
- 
--<para>Wallets can be dragged from the &kwalletmanager5; window.  This allows
-+<para>Wallets can be dragged from the &kwalletmanager; window.  This allows
- you to drag the wallet to a file browser window, where you can choose to
- copy, move, or link the wallet, as desired.</para>
- 
-@@ -570,7 +571,7 @@ on a vacation, and still have easy access to important sites.</para>
- <chapter id="credits-and-license">
- <title>Credits and License</title>
- 
--<para>&kwallet5; &copy; 2003 &George.Staikos;</para>
-+<para>&kwalletmanager; &copy; 2003 &George.Staikos;</para>
- <para>Documentation &copy; &Lauri.Watts; and &George.Staikos;</para>
- 
- <!-- TRANS:CREDIT_FOR_TRANSLATORS -->
 diff --git a/kwalletmanager5-kwalletd.desktop b/kwalletmanager-kwalletd.desktop
 similarity index 98%
 rename from kwalletmanager5-kwalletd.desktop
 rename to kwalletmanager-kwalletd.desktop
-index 0944a4af..ebe1d9b9 100755
+index 7ca51635..0dba52f3 100755
 --- a/kwalletmanager5-kwalletd.desktop
 +++ b/kwalletmanager-kwalletd.desktop
-@@ -129,9 +129,9 @@ GenericName[tr]=Parola Yöneticisi
+@@ -131,9 +131,9 @@ GenericName[tr]=Parola Yöneticisi
  GenericName[uk]=Менеджер паролів
  GenericName[zh_CN]=密码管理器
  GenericName[zh_TW]=密碼管理員
@@ -314,7 +105,7 @@ diff --git a/org.kde.kwalletmanager5.appdata.xml b/org.kde.kwalletmanager.appdat
 similarity index 98%
 rename from org.kde.kwalletmanager5.appdata.xml
 rename to org.kde.kwalletmanager.appdata.xml
-index 07e92924..059340a3 100644
+index 80b76bfd..d4060c76 100644
 --- a/org.kde.kwalletmanager5.appdata.xml
 +++ b/org.kde.kwalletmanager.appdata.xml
 @@ -1,6 +1,6 @@
@@ -325,7 +116,7 @@ index 07e92924..059340a3 100644
    <metadata_license>FSFAP</metadata_license>
    <project_license>GPL-2.0+</project_license>
    <developer id="org.kde">
-@@ -133,8 +133,8 @@
+@@ -137,8 +137,8 @@
    </description>
    <url type="bugtracker">https://bugs.kde.org/enter_bug.cgi?format=guided&amp;product=kwalletmanager</url>
    <url type="donation">https://www.kde.org/community/donations/?app=kwalletmanager&amp;source=appdata</url>
@@ -336,7 +127,7 @@ index 07e92924..059340a3 100644
    <content_rating type="oars-1.1"/>
    <screenshots>
      <screenshot type="default">
-@@ -143,8 +143,12 @@
+@@ -147,8 +147,12 @@
    </screenshots>
    <project_group>KDE</project_group>
    <provides>
@@ -349,12 +140,12 @@ index 07e92924..059340a3 100644
 +  </replaces>
    <launchable type="desktop-id">org.kde.kwalletmanager.desktop</launchable>
    <releases>
-     <release version="25.12.0" date="2025-12-11"/>
+     <release version="26.04.0" date="2026-04-16"/>
 diff --git a/org.kde.kwalletmanager.desktop b/org.kde.kwalletmanager.desktop
-index 57e9faca..73f54280 100755
+index 4ebd4f39..89318376 100755
 --- a/org.kde.kwalletmanager.desktop
 +++ b/org.kde.kwalletmanager.desktop
-@@ -129,7 +129,7 @@ GenericName[tr]=Parola Yöneticisi
+@@ -131,7 +131,7 @@ GenericName[tr]=Parola Yöneticisi
  GenericName[uk]=Менеджер паролів
  GenericName[zh_CN]=密码管理器
  GenericName[zh_TW]=密碼管理員
@@ -467,10 +258,10 @@ index e65c66bf..43741b58 100644
  Name[ar]=احفظ ضبط المحفظة
  Name[az]=Cüzdan tənzimləmələrini saxlamaq
 diff --git a/src/konfigurator/kwalletconfig.json b/src/konfigurator/kwalletconfig.json
-index ca080bf8..5e51b171 100644
+index 71d0375b..d9d22dbe 100644
 --- a/src/konfigurator/kwalletconfig.json
 +++ b/src/konfigurator/kwalletconfig.json
-@@ -117,7 +117,7 @@
+@@ -118,7 +118,7 @@
          "Name[zh_CN]": "KDE 密码库",
          "Name[zh_TW]": "KDE 錢包"
      },
@@ -553,10 +344,10 @@ index 4d0efaad..72619c5d 100644
 -########### install files ###############
 -
 diff --git a/src/manager/kwalletmanager.cpp b/src/manager/kwalletmanager.cpp
-index 723585a2..ede02585 100644
+index 9f73dbdc..493b9189 100644
 --- a/src/manager/kwalletmanager.cpp
 +++ b/src/manager/kwalletmanager.cpp
-@@ -404,7 +404,7 @@ void KWalletManager::shuttingDown()
+@@ -407,7 +407,7 @@ void KWalletManager::shuttingDown()
  
  void KWalletManager::setupWallet()
  {
@@ -579,5 +370,5 @@ index a9ca63fc..7797ee59 100644
      aboutData.addAuthor(i18nc("@info:credit", "Valentin Rusu"), i18n("Former Maintainer, user interface refactoring"), QStringLiteral("kde@rusu.info"));
      aboutData.addAuthor(i18nc("@info:credit", "George Staikos"), i18n("Original author and former maintainer"), QStringLiteral("staikos@kde.org"));
 -- 
-2.52.0
+2.53.0
 
